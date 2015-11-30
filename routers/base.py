@@ -8,6 +8,10 @@ class IncorrectMAC(Exception):
     Did not your mother teach you how to spell your MAC?!
     """
 
+class IncorrectPassword(Exception):
+    """
+    Raised on incorrectly typed password.
+    """
 
 class DHCPRecord(object):
     """
@@ -18,12 +22,12 @@ class DHCPRecord(object):
 
     conn_types = (ethernet, wifi)
 
-    def __init__(self, hostname, mac, conn_type=None, rssi=None, expires=None):
+    def __init__(self, hostname, mac, ip, conn=None, rssi=None, expires=None):
         """
-
         :param hostname: hostname of the device
         :param mac: MAC address of the device
-        :param conn_type: ethernet or
+        :param ip: assigned IP
+        :param conn: ethernet or wifi
         :param rssi: strength of the signal or something like that
         :param expires: when is the record going to expire
         :return:
@@ -34,8 +38,11 @@ class DHCPRecord(object):
         self.mac = mac
         self.expires = expires
         self.rssi = rssi
-        self.conn_type = conn_type
+        self.conn = conn
         self.hostname = hostname
+
+    def __repr__(self):
+        return self.hostname
 
 
 class BaseRouter(object):
@@ -44,9 +51,12 @@ class BaseRouter(object):
     and returns them in understandable fashion.
     """
 
-    def __init__(self, router_ip, router_port):
+    def __init__(self, router_ip, router_port, user, password):
+        self.base_url = 'http://{0}:{1}'.format(router_ip, router_port)
         self.router_port = router_port
         self.router_ip = router_ip
+        self.user = user
+        self.password = password
 
     def get_records(self):
         """
